@@ -10,10 +10,15 @@ graph::~graph(){
 	delete[] adjMatrix;
 }
 
-void graph::addVertex(string vname, int src, int dest, int weight){
-	if(src >= size || dest >= size)
+void graph::addVertex(string vname, int src){
+	if(src >= size)
 		throw outOfBounds("Error: Out of Bounds on Matrix");
 	vertex[src] = vname;
+}
+
+void graph::addEdge(int src, int dest, int weight){
+	if(src >= size || dest >= size)
+		throw outOfBounds("Error: Out of Bounds on Matrix");
 	adjMatrix[src + size * dest] = weight;
 	if(!directed)
 		adjMatrix[dest + size * src] = weight;

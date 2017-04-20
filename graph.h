@@ -25,7 +25,8 @@ class graph{
 public:
 	graph(size_t n, bool d = false);
 	~graph();
-	void addVertex(string vname, int src, int dest, int weight);
+	void addVertex(string vname, int src);
+	void addEdge(int src, int dest, int weight);
 	void removeVertex(int src, int dest);
 	int getSize() const;
 	void dfs(int v);
