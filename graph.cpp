@@ -6,8 +6,25 @@ graph::graph(size_t n, bool d):
 		adjMatrix[i] = 0;
 }
 
+graph::graph(const graph &g): vertex(g.vertex){
+	delete[] adjMatrix;
+	adjMatrix = new int[g.size * g.size];
+	for(int i = 0; i < g.size * g.size; ++i)
+		adjMatrix[i] = g.adjMatrix[i];
+}
+
 graph::~graph(){
 	delete[] adjMatrix;
+}
+
+graph graph::operator=(const graph & g){
+	for(int i = 0; i < g.vertex.size(); ++i)
+		vertex.push_back(g.vertex[i]);
+	delete[] adjMatrix;
+	adjMatrix = new int[g.size * g.size];
+	for(int i = 0; i < g.size * g.size; ++i)
+		adjMatrix[i] = g.adjMatrix[i];
+	return *this;
 }
 
 void graph::addVertex(string vname, int src){
@@ -35,29 +52,27 @@ int graph::getSize() const{
 	return size;
 }
 
-void graph::dfs(int v){
+vector<string> graph::dfs(int v){
+	vector<string> searchVec;
 	bool *visited = new bool[size];
 	for(int i = 0; i < size; ++i)
 		visited[i] = false;
-	dfsHelper(v, visited);
+	dfsHelper(v, visited, searchVec);
 	delete[] visited;
-	cout << endl;
+	return searchVec;
 }
 
 
-void graph::dfsHelper(int v, bool *visited){
+ void graph::dfsHelper(int v, bool *visited, vector<string> &searchVec){
 	visited[v] = true;
-	cout << vertex[v];
+	searchVec.push_back(vertex[v]);
 	for(int j = 0; j < size; ++j)
-		if(adjMatrix[v + size * j] != 0 && !visited[j]){
-			cout << "->";
-			dfsHelper(j, visited);
-		}
-	for(int j = 0; j < size; ++j)
-		visited[j] = false;
+		if(adjMatrix[v + size * j] != 0 && !visited[j])
+ 			dfsHelper(j, visited, searchVec);
 }
 
-void graph::bfs(int v){
+vector<string> graph::bfs(int v){
+	vector<string> searchVec;
 	bool *visited = new bool[size];
 	for(int i = 0; i < size; ++i)
 		visited[i] = false;
@@ -67,22 +82,21 @@ void graph::bfs(int v){
 	while(!q.empty()){
 		int n = q.front();
 		q.pop();
-		cout << vertex[n] << "->";
+		searchVec.push_back(vertex[n]);
 		for(int j = 0; j < size; ++j){
-			if(adjMatrix[v + size * j] != 0 && !visited[v]){
-				q.push(v);
-				visited[v] = true;
+			if(adjMatrix[n + size * j] != 0 && !visited[j]){
+				q.push(j);
+				visited[j] = true;
 			}
 		}
 	}
-	for(int i = 0; i < size; ++i)
-		visited[i] = false;
-	cout << endl;
+	delete[] visited;
+	return searchVec;
 }
 
 ostream &operator<<(ostream &gout, const graph &g){
 	stringstream ss;
-	string *weightStr = new string[g.size * g.size], buffer, format;
+	string *weightStr = new string[g.size * g.size], format;
 	for(int i = 0; i < g.size; ++i){
 		for(int j = 0; j < g.size; ++j){
 			ss << g.adjMatrix[i + g.size * j];
@@ -90,14 +104,14 @@ ostream &operator<<(ostream &gout, const graph &g){
 			ss.clear();
 		}
 	}
-	ss << "%-" << longestStrLen(weightStr, g.size * g.size) << "d";
+	int len = longestStrLen(weightStr, g.size);
+	ss << "%-" << len << "d";
 	ss >> format;
 	ss.clear();
 	for(int i = 0; i < g.size; ++i){
 		for(int j = 0; j < g.size; ++j){
-			char cbuf[100];
-			sprintf(cbuf, format.c_str(), g.adjMatrix[i + g.size * j]);
-			buffer = string(cbuf);
+			char buffer[100];
+			sprintf(buffer, format.c_str(), g.adjMatrix[i + g.size * j]);
 			gout << buffer << "  ";
 		}
 		gout << endl;
@@ -112,4 +126,60 @@ int longestStrLen(const string *list, const int strNum){
 		if(len < list[i].length())
 			len = list[i].length();
 	return len;
+}
+
+int longestStrLen(vector<string> list, const int strNum){
+	int len = list[0].length();
+	for(int i = 1; i < strNum; ++i)
+		if(len < list[i].length())
+			len = list[i].length();
+	return len;
+}
+
+void printSearch(vector<string> &v){
+	for(string s : v)
+		cout << s << "->";
+	cout << "END\n";
+}
+
+void createGraph(graph &g){
+	string city[] = {
+		"Seattle",
+		"Chicago",
+		"Denver",
+		"San Francisco",
+		"Los Angeles",
+		"Kansas City",
+		"New York",
+		"Boston",
+		"Dallas",
+		"Atlanta",
+		"Houston",
+		"Miami"
+	};
+	for(int i = 0; i < 12; ++i)
+		g.addVertex(city[i], i);
+	g.addEdge(0, 1, 2097);
+	g.addEdge(0, 2, 1331);
+	g.addEdge(0, 3, 807);
+	g.addEdge(1, 2, 1003);
+	g.addEdge(1, 5, 533);
+	g.addEdge(1, 6, 787);
+	g.addEdge(1, 7, 983);
+	g.addEdge(2, 3, 1267);
+	g.addEdge(2, 5, 599);
+	g.addEdge(2, 4, 1015);
+	g.addEdge(3, 4, 381);
+	g.addEdge(4, 5, 1663);
+	g.addEdge(4, 8, 1435);
+	g.addEdge(5, 6, 1260);
+	g.addEdge(5, 8, 496);
+	g.addEdge(5, 9, 864);
+	g.addEdge(6, 7, 214);
+	g.addEdge(6, 9, 888);
+	g.addEdge(8, 9, 781);
+	g.addEdge(8, 10, 239);
+	g.addEdge(9, 10, 810);
+	g.addEdge(9, 11, 661);
+	g.addEdge(10, 11, 1187);
 }
