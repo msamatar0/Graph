@@ -23,7 +23,7 @@ class graph{
 	int *adjMatrix;
 	bool directed;
 	size_t size;
-	void dfsHelper(int i, bool *visited, vector<string> &searchVec);
+	void dfsHelper(int i, bool *visited, int &dist, vector<string> &searchVec);
 public:
 	graph(size_t n, bool d = false);
 	graph(const graph &g);

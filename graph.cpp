@@ -31,6 +31,8 @@ void graph::addVertex(string vname, int src){
 	if(src >= size)
 		throw outOfBounds("Error: Out of Bounds on Matrix");
 	vertex[src] = vname;
+	cout << "Inserted vertex " << vname
+		<< " w/ index " << src << endl;
 }
 
 void graph::addEdge(int src, int dest, int weight){
@@ -39,6 +41,9 @@ void graph::addEdge(int src, int dest, int weight){
 	adjMatrix[src + size * dest] = weight;
 	if(!directed)
 		adjMatrix[dest + size * src] = weight;
+	cout << "Added Edge: "
+		<< vertex[src] << (directed? " -> ":" <-> ")
+		<< vertex[dest] << endl;
 }
 
 void graph::removeVertex(int src, int dest){
@@ -54,25 +59,31 @@ int graph::getSize() const{
 
 vector<string> graph::dfs(int v){
 	vector<string> searchVec;
+	int distance = 0;
 	bool *visited = new bool[size];
 	for(int i = 0; i < size; ++i)
 		visited[i] = false;
-	dfsHelper(v, visited, searchVec);
+	dfsHelper(v, visited, distance, searchVec);
 	delete[] visited;
+	cout << "Total Distance: " << distance << endl;
 	return searchVec;
 }
 
 
- void graph::dfsHelper(int v, bool *visited, vector<string> &searchVec){
+ void graph::dfsHelper(int v, bool *visited, int &dist, vector<string> &searchVec){
 	visited[v] = true;
 	searchVec.push_back(vertex[v]);
 	for(int j = 0; j < size; ++j)
-		if(adjMatrix[v + size * j] != 0 && !visited[j])
- 			dfsHelper(j, visited, searchVec);
+		if(adjMatrix[v + size * j] != 0 && !visited[j]){
+			dist += adjMatrix[v + size * j];
+			dfsHelper(j, visited, dist, searchVec);
+		}
+	cout << "";
 }
 
 vector<string> graph::bfs(int v){
 	vector<string> searchVec;
+	int distance = 0;
 	bool *visited = new bool[size];
 	for(int i = 0; i < size; ++i)
 		visited[i] = false;
@@ -85,12 +96,14 @@ vector<string> graph::bfs(int v){
 		searchVec.push_back(vertex[n]);
 		for(int j = 0; j < size; ++j){
 			if(adjMatrix[n + size * j] != 0 && !visited[j]){
+				distance += adjMatrix[n + size * j];
 				q.push(j);
 				visited[j] = true;
 			}
 		}
 	}
 	delete[] visited;
+	cout << "Total Distance: " << distance << endl;
 	return searchVec;
 }
 
@@ -104,7 +117,7 @@ ostream &operator<<(ostream &gout, const graph &g){
 			ss.clear();
 		}
 	}
-	int len = longestStrLen(weightStr, g.size);
+	int len = longestStrLen(weightStr, g.size * g.size);
 	ss << "%-" << len << "d";
 	ss >> format;
 	ss.clear();
